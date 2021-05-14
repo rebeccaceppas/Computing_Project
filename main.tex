@@ -1,0 +1,122 @@
+\documentclass[10pt, preprint]{aastex}
+
+\usepackage{natbib}
+\bibliographystyle{apj}
+
+\usepackage{minted}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{amsmath}
+\usepackage[toc,page]{appendix}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+    citecolor=blue,
+}
+\usepackage{booktabs}
+\renewcommand{\arraystretch}{1}
+
+\title{Computing Project}
+\author{Rebecca Ceppas de Castro}
+
+\begin{document}
+
+\maketitle
+
+\section*{Introduction}
+
+In this project, methods and tools of measuring the size of a galaxy were explored. Data from a simulated galaxy from the SIMBA cosmological hydrodynamical simulation was used to visualized the components of the total mass of the galaxy and their spatial distributions. In addition, data generated at different wavelengths of light was used to learn about the types of stars and amount of dust in the simulated galaxy. Finally, the package statmorph\footnote{https://statmorph.readthedocs.io/en/latest/}, was used to estimate the morphological parameters of the same galaxy in an actual sky observation taken with the WFC3 from the Hubble Space Telescope\footnote{https://www.stsci.edu/itt/APT_help20/WFC3/c05_detector5.html}.
+
+
+\section{Visualizing the Galaxy}
+
+\begin{figure}[H]
+  \centering
+  \subfloat[Stellar Mass and Contour of the Dust Mass Distribution.]{\includegraphics[width=0.5\textwidth]{contour1.pdf}\label{figA}}
+  \hfill
+  \subfloat[Star Formation Rate and Contour of Gas Mass Distribution.]{\includegraphics[width=0.5\textwidth]{contour2.pdf}\label{figB}}
+  \caption{\label{contour plots} Figure (a) depicts the data of the simulated galaxy for the stellar mass distribution, plotted in log scale, with a contour of the dust mass distribution over-plotted. Figure (b) depicts the star formation rate across the simulated galaxy, plotted in log scale, with a contour of the gas mass distribution over-plotted.}
+\end{figure}
+
+The SIMBA simulated galaxy data has four separate components, showing the spatial distribution of stellar mass, dust mass, gas mass, and star formation rate. The distribution of these different components appears to be closely co-related, as can be seen in   Figure~\ref{contour plots}. The regions with higher intensity in the stellar mass (larger mass) are clearly also the regions with higher dust concentrations. Similarly, the parts with highest star formation rates are almost perfectly outlined by the gas mass contours.
+
+By summing up the pixel values in each of the data sets, the total mass of each component was estimated as shown in Table \ref{Totals}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Component & Value\\\hline
+Stellar Mass & $1.986 \cdot 10^{10} M_{o}$\\
+Dust Mass & $5.844 \cdot 10^{7} M_{o}$\\
+Gas Mass & $6.547\cdot 10^{10} M_{o}$\\
+Star Formation Rate & $24.401 \frac{M_{o}}{yr}$\\\hline
+\end{tabular}
+\caption{\label{Totals}Total Mass of the Components of the Galaxy and the Star Formation Rate}
+\end{table}
+
+A more in depth understanding of the components of the galaxy, including the type of stars and the distribution of stars of different ages can be obtained by observing the galaxy in different wavelengths. Figure~\ref{wavelength images} shows a raw plot of the data for 6 chosen wavelengths in the stated range. While some difference can already be seen, Figure \ref{compare} shows the observation in ultraviolet and far-infrared using the same scale. This shows more obviously how the different the emissions are in intensity and even in distribution.
+
+\begin{figure}[H]
+\epsscale{.6} 
+\plotone{wavs.pdf}
+\caption{\label{wavelength images}Plots of 6 chosen observations at wavelengths ranging from ultraviolet to microwave.}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{compare.pdf}
+    \caption{Comparing emissions in the Ultraviolet and Far-Infrared Regimen. The plots were generated using the same scale for a better comparison.}
+    \label{compare}
+\end{figure}
+
+A plot of the flux for each wavelength also shows some interesting patterns. As shown in Figure~\ref{flux}, the emission is strongly concentrated around the infrared and far-infrared wavelengths. This provides reason to believe there is a significant amount of dust absorbing shorter wavelength light and re-emitting it at the infrared regimen. There is not a lot of emission in the shorter wavelengths, which leads me to believe there are not a lot young, hot stars in this galaxy.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{flux.pdf}
+    \caption{The flux of the simulated galaxy as a function of wavelength. This Figure shows high emissions at the longer wavelengths (infrared and far-infrared) and not very high fluxes in the optical or ultraviolet wavelengths.}
+    \label{flux}
+\end{figure}
+
+\section{Galaxy Size}
+
+Using aperture photometry, the size of the galaxy can be estimated using a variety of tools and methods. For this part of the project, aperture photometry with a circular aperture will be used.\footnote{https://photutils.readthedocs.io/en/stable/aperture.html\#performing-aperture-photometry} Aperture photometry was performed over a data set containing the total mass of all components of the simulated galaxy, and from this, the half-mass size was estimated to be $R_{\frac{1}{2}m} = 7.03$ kpc. The \textit{photutils} package returns the size in pixels. The Pixel scale was estimated using the pixel scale value of the \textit{galaxy\_allwav.fits} file and the ratio of their dimensions. Then, to convert from arcseconds to kpc, the galaxy's redshift $z = 2$ was used through the \textit{Planck15} package from \textit{astropy.comology}\footnote{https://docs.astropy.org/en/stable/cosmology/index.html}. This package estimates this scale using the relations and definitions shown in Equation~\ref{redshift}. These were taken from Prof Wu,s lecture notes.\footnote{http://www.astro.utoronto.ca/~wu/AST320/Main\_files/lecture\_plan.pdf}
+
+$$ r = \frac{\theta}{d_A} $$
+
+\begin{equation}\label{redshift}
+    d_A = \frac{d}{1+z}
+\end{equation}
+
+$$  d(z) = \frac{c}{H_0} \int_0^z \frac{dz}{(\Omega_M(1+z)^3 + \Omega_{\Lambda})^{1/2}} $$
+
+Using a similar technique, the half-light size was estimated for the optical observation, as well as for the other wavelengths provided. The half-light size was estimated to be $R_{\frac{1}{2}l} = 8.14$ kpc. This is slightly larger than the half-mass size. Figure \ref{sizes} shows this variation of the half-light sizes compared to the half-mass size. The values get pretty close at the longer wavelengths of optical light and in the near infrared, but there are some very large deviations in the infrared observations. This again agrees with the fact that dust is re-emitting light from shorter wavelengths at infrared, which causes an overestimation of the light-size of the galaxy at these longer wavelengths.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{sizes.pdf}
+    \caption{The half-light sizes as a function of wavelength compared to the estimated half-mass size of the galaxy.}
+    \label{sizes}
+\end{figure}
+
+\section{Using statmorph}
+
+The methods used previously don't work as well in actual observations, as there is typically a lot more noise, background emissions and even other bright sources. Figure \ref{sky} shows this observation. The package \textit{statmorph} was used to create a segmentation map to help estimate some of the parameters of this galaxy. In the script, a gain of 1.5 e-/DN was used, based on the properties of the WFC3 instrument in the HST.\footnote{https://www.stsci.edu/itt/APT\_help20/WFC3/c05\_detector5.html}
+
+\begin{figure}[H]
+  \centering
+  \subfloat[Data from an Observation of the example galaxy.]{\includegraphics[width=0.5\textwidth]{sky.pdf}\label{sky}}
+  \hfill
+  \subfloat[Segmentation Map for the Main Source in the Galaxy Observation Data.]{\includegraphics[width=0.5\textwidth]{seg.pdf}\label{statmorph}}
+  \caption{This figure compares the sky data of the example galaxy with the segmentation map created with statmorph. This segmentation map is used to estimate the morphological parameters of the galaxy.}
+\end{figure}
+
+This method provides a lot of parameters, but one that is easily comparable is the \textit{morph.rhalf\_ellip}, which I believe is the half-light size when taking the source to be an ellipse. This came out to be $R_{\frac{1}{2}} = 12.01$ pixels. Compared to half-mass estimate, which was $R_{\frac{1}{2}} = 13.78$ pixels, it is not terribly far off, considering I probably skipped some important steps when using this tool. 
+
+\end{document}
